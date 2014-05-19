@@ -101,10 +101,11 @@ primus.on('connection', function (spark) {
 
       case 'message':
         data.source = spark.id;
-        data.serverDate = now();
+        data.date = now();
 
         // to everyone
         spark.room(room).except(spark.id).write(data);
+
         // to sender
         spark.write(data);
         break;

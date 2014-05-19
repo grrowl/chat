@@ -13,8 +13,6 @@ var Chat = {
 
   // Initialise the chat channel system
   init: function () {
-    Log.init();
-
     this.primus = new Primus();
     this.primus = Primus.connect(window.location.href);
     this.bindEvents();
@@ -22,9 +20,10 @@ var Chat = {
     this.messages.push = function (message) {
       var newIndex = Array.prototype.push.call(Chat.messages, message);
 
-      if (typeof message.date == undefined) {
-        Chat.unverifiedMessageIndexes.push(newIndex);
+      if (typeof message.date == 'undefined') {
+        Chat.unverifiedMessageIndexes.push(newIndex - 1);
       }
+
       UI.refresh();
     }
   },
@@ -49,8 +48,6 @@ var Chat = {
 
     Chat.messages.push($.extend({}, sendObject, { received: false }));
     this.primus.write(sendObject);
-
-    console.log('message', sendObject);
   },
 
   // Join a room/channel
@@ -99,11 +96,26 @@ var Chat = {
     });
 
     primus.on('data', function incoming(data) {
-      console.log('data', data);
-
       switch (data.action) {
         case 'message':
-          Log.append(data);
+          var existing = false;
+          // check if message exists as pending
+          Chat.unverifiedMessageIndexes.forEach(function (index, unverifiedIndex) {
+            if (data.clientDate == Chat.messages[index].clientDate) {
+              // found it! lets merge
+              Chat.messages[index] = $.extend({}, Chat.messages[index], data);
+              // remove unverified index
+              Chat.unverifiedMessageIndexes.splice(unverifiedIndex, 1);
+
+              existing = true;
+              UI.refresh(); // force refresh
+              return false;
+            }
+          });
+
+          // Push onto list if doesn't already exist
+          if (existing == false)
+            Chat.messages.push(data);
           break;
 
         default:
@@ -124,29 +136,6 @@ var Chat = {
     primus.on('close', function end() {
       console.log('close', 'We\'ve lost the connection to the server.');
     });
-  }
-}
-
-//
-var Log = {
-  $list: undefined,
-  init: function () {
-    Log.$list = $('#log');
-  },
-  append: function(message) {
-    message.key = message.date;
-    Chat.messages.push(message);
-    render();
-
-    /*
-    var $li = $('<li>');
-    $li.addClass('status-'+ type);
-    $li.append($('<h4>').text(title));
-    $li.append($('<p>').html(message));
-
-    Log.$list.append($li);
-
-    $('body').scrollTop($('body').height());*/
   }
 }
 

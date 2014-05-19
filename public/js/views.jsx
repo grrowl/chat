@@ -34,15 +34,11 @@ var MessageItem = React.createClass({
   render: function () {
     // once we implement formatting:
     // <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
-    console.log(this.props, this.props.message.action);
     return (
       <li className={React.addons.classSet({
         // completed: 'type-'+ this.props.message.action,
         verified: ~~this.props.message.date
       })}>
-        <div className="image">
-          <img src={this.props.message.imageData} />
-        </div>
         <h4>{this.props.message.source}</h4>
         <div className="message" onDoubleClick={this.toggleLike}>
           {this.props.message.text}
