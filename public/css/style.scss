@@ -1,0 +1,44 @@
+@import "compass/css3";
+@import "bootstrap/bootstrap";
+
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+h1 {
+  margin-top: 0;
+}
+
+
+#log {
+  li {
+    margin: 1px 0;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid #EEE;
+
+    &.type-reconnect {
+      border-color: #C09853;
+      background: #FCF8E3
+    }
+    &.type-error {
+      border-color: #B94A48;
+      background: #F2DEDE
+    }
+    &.type-open {
+      border-color: #468848;
+      background: #DFF0D8
+    }
+    &.type-end {
+      border-color: #333;
+      background: #EEE
+    }
+    &.type-network{
+      border-color: #D0E3F0;
+      background: #F0F7FD
+    }
+  }
+}

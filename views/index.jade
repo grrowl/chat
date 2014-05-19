@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  .well
+    h1= title
+    div#status
+  ul#log
+  .input-group.input-group-lg
+    input#message.form-control
+    span.input-group-btn[placeholder="OMG HAI!"]
+      button#btn-post.btn.btn-primary Post
+
+block sidebar
+  #sidebar.list-group
