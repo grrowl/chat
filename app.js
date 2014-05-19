@@ -51,7 +51,7 @@ if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
-      message: err.message,
+      text: err.message,
       error: err
     });
   });
@@ -62,7 +62,7 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
-    message: err.message,
+    text: err.message,
     error: {}
   });
 });
@@ -101,12 +101,16 @@ primus.on('connection', function (spark) {
 
       case 'message':
         data.source = spark.id;
-        data.date = now();
+        data.serverDate = now();
 
         // to everyone
         spark.room(room).except(spark.id).write(data);
         // to sender
         spark.write(data);
+        break;
+
+      case 'system': // server should never receive this
+        spark.write('Naughty!');
         break;
 
       default:

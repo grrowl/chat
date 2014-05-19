@@ -11,7 +11,13 @@ All the server has to do is serve static files, and allow users to: a) subscribe
 
 Actually:
 
+node.js runs on port :3000, apache proxies connections through it. We should always connect directly to :3000 for websockets though to avoid apache's overhead.
+
 node.js can simply run on another port and serve primus.js. Static files can be built seperately and hosted on apache. All we need is a self-contained API/app (on the node.js side)
+
+#### Requisites outside npm
+* compass (and sass)
+* ~mongo~
 
 ## Client side
 All messages are in the `Chat.history`. Updates from the server can be checked against `Message.clientDate`
@@ -51,7 +57,7 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 ````
 
 ## TODO
-[ ] Tighening of message passing. Both server (db) and client (`Chat.messages`) simply extend Messages on update based on Message.clientDate (unverified messages) or Message.date (known messages)
+[ ] Tighening of message passing. Both server (db) and client (`Chat.messages`) simply extend Messages on update based on Message.clientDate (unverified messages) or Message.serverDate (known messages)
 [ ] Models: Room, Message
 [/] Store messages and room lists in-memory, sync UI when needed (React.js?)
 [ ] Webcam capture and encoding
@@ -70,8 +76,8 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 
 
 ### todo 2
-[ ] upload
+[ ] upload (see below)
 
 #### longer term considerations
 data[message].clientDate should NOT be sent to all clients (timing attack)
-base64 means the
+base64 means the queue will fill (size-wise) and could back up/overflow

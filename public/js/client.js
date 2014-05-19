@@ -1,15 +1,35 @@
 var Chat = {
   primus: undefined,
-  joinedRooms: ['global'],
-  history: [],
 
+  // rooms we're in
+  joinedRooms: ['global', 'pockyboard'],
+  currentRoom: 'pockyboard',
+
+  // total message history in memory
+  messages: [],
+
+  // indexes of messages sent to the server and not received back yet
+  unverifiedMessageIndexes: [],
+
+  // Initialise the chat channel system
   init: function () {
     Log.init();
 
     this.primus = new Primus();
     this.primus = Primus.connect(window.location.href);
-    Chat.bindEvents();
+    this.bindEvents();
+
+    this.messages.push = function (message) {
+      var newIndex = Array.prototype.push.call(Chat.messages, message);
+
+      if (typeof message.date == undefined) {
+        Chat.unverifiedMessageIndexes.push(newIndex);
+      }
+      UI.refresh();
+    }
   },
+
+  // update connection status (connecting)
   updateStatus: function (status) {
     $('#status').text(status);
   },
@@ -23,11 +43,11 @@ var Chat = {
     sendObject = {
       action: 'message',
       room: room || 'global',
-      clientDate: performance.now,
-      message: message
+      clientDate: performance.now(),
+      text: message
     }
 
-    Chat.history.push($.extend({}, sendObject, { received: false }));
+    Chat.messages.push($.extend({}, sendObject, { received: false }));
     this.primus.write(sendObject);
 
     console.log('message', sendObject);
@@ -43,10 +63,9 @@ var Chat = {
     this.primus.write({ action: 'leave', room: room });
   },
 
-  // setup
+  // Bind chat/protocol events
   bindEvents: function () {
-    var primus = this.primus,
-        log = Log.append;
+    var primus = this.primus;
 
     primus.on('reconnecting', function reconnecting(opts) {
       console.warn('reconnecting', 'We are <strong>scheduling</strong> a new reconnect attempt. This is attempt <strong>'+ opts.attempt +'</strong> and will trigger a reconnect operation in <strong>'+ opts.timeout +'</strong> ms.')
@@ -76,20 +95,24 @@ var Chat = {
     });
 
     primus.on('error', function error(err) {
-      console.error('error', 'An unknown error has occured <code>'+ err.message +'</code>');
+      console.error('error', 'An unknown error has occurred <code>'+ err.message +'</code>');
     });
 
     primus.on('data', function incoming(data) {
-      console.log('data', 'string' === typeof data ? data : '<pre><code>'+ JSON.stringify(data, null, 2) +'</code></pre>');
+      console.log('data', data);
 
       switch (data.action) {
         case 'message':
-          Log.append(data.message, data.source, 'message');
+          Log.append(data);
           break;
 
         default:
         case 'raw':
-          Log.append(data, 'system', 'system');
+          Chat.messages.push({
+            date: performance.now(),
+            source: 'system',
+            message: data
+          });
       }
     });
 
@@ -104,12 +127,18 @@ var Chat = {
   }
 }
 
+//
 var Log = {
   $list: undefined,
   init: function () {
     Log.$list = $('#log');
   },
-  append: function(message, title, type) {
+  append: function(message) {
+    message.key = message.date;
+    Chat.messages.push(message);
+    render();
+
+    /*
     var $li = $('<li>');
     $li.addClass('status-'+ type);
     $li.append($('<h4>').text(title));
@@ -117,10 +146,11 @@ var Log = {
 
     Log.$list.append($li);
 
-    $('body').scrollTop($('body').height());
+    $('body').scrollTop($('body').height());*/
   }
 }
 
+// UI autonomy. Hopefully mostly abstracted framework
 var UI = {
   init: function () {
     this.bindEvents();
@@ -140,6 +170,15 @@ var UI = {
 
     $('#message').on('keypress', postMessage);
     $('#btn-post').on('click', postMessage);
+  },
+
+  // render Room
+  refresh: function() {
+    React.renderComponent(
+      // <MessageList />,
+      MessageList({ messages: Chat.messages }),
+      document.querySelector('#messageContainer')
+    );
   }
 }
 

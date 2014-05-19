@@ -2,9 +2,13 @@ doctype html
 html
   head
     title= title
-    script(src='http://code.jquery.com/jquery-1.11.1.min.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js')
     script(src='/primus/primus.js')
-    script(src='/js/site.js')
+    script(src='/js/react/react-with-addons.js')
+    script(src='/js/react/JSXTransformer.js')
+    script(src='/js/views.jsx',type='text/jsx')
+    script(src='/js/client.js')
     link(rel='stylesheet', href='/css/style.css')
   body
     block content
