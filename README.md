@@ -4,7 +4,7 @@ Based on works:
 * https://github.com/primus/primus#connecting-from-the-browser
 * https://github.com/cayasso/primus-rooms
 * ~https://github.com/zeMirco/primus-express-session~
-* https://github.com/hdragomir/facetogif
+* https://github.com/hdragomir/facetogif (MIT Licence)
 
 ## Server Side
 All the server has to do is serve static files, and allow users to: a) subscribe to one or more channels (lobby, someroom, user-to-user), and b) accept messages to rebroadcast to everyone on those channels.
@@ -41,9 +41,9 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 |   Save file &   |      |            |         (  )          
 | Dispatch 'file' +----> |   Primus   +----> ( `  ) . )       
 | Message update  |      |            |     (_, _(  ,_)_)     
-+-----------------+      +------------+                       
-                                                              
-                          ____________                        
++-----------------+      +------+-----+                       
+                                |                             
+                          ______v_____                        
                          (____________)                       
                          |            |                       
                          |  Mongo DB  |                       
@@ -57,8 +57,7 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 ````
 
 ## TODO
-[ ] Tighening of message passing. Both server (db) and client (`Chat.messages`) simply extend Messages on update based on Message.clientDate (unverified messages) or Message.serverDate (known messages)
-[ ] Models: Room, Message
+[/] Tighening of message passing. Both server (db) and client (`Chat.messages`) simply extend Messages on update based on Message.clientDate (unverified messages) or Message.serverDate (known messages)
 [/] Store messages and room lists in-memory, sync UI when needed (React.js?)
 [ ] Webcam capture and encoding
 [ ] History

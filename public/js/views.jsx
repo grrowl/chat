@@ -31,17 +31,32 @@ var MessageItem = React.createClass({
     console.log('toggleLike', arguments);
   },
 
+  componentWillReceiveProps: function (nextProps) {
+    if (!nextProps.message.source)
+      return;
+
+    if (nextProps.message.source.length == 20) {
+      this.setState({
+        name: random_name(nextProps.message.source)
+      });
+    }
+  },
+
   render: function () {
     // once we implement formatting:
     // <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
+    var name = 'unknown';
+    if (this.state && this.state.name)
+      name = this.state.name;
+
     return (
       <li className={React.addons.classSet({
         // completed: 'type-'+ this.props.message.action,
         verified: ~~this.props.message.date
       })}>
-        <h4>{this.props.message.source}</h4>
+        <h4>{ name }</h4>
         <div className="message" onDoubleClick={this.toggleLike}>
-          {this.props.message.text}
+          { this.props.message.text }
         </div>
       </li>
     );
