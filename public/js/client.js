@@ -171,9 +171,20 @@ var UI = {
   }
 }
 
+var Webcam = {
+  faceToGif: undefined,
+
+  init: function () {
+    this.faceToGif = new faceToGif(document.getElementById('webcamPreview'));
+    this.faceToGif.startStreaming(function () {
+      console.log('webam success!');
+    });
+  }
+}
+
 $(Chat.init.bind(Chat));
 $(UI.init.bind(UI));
-
+$(Webcam.init.bind(Webcam));
 
 // well this is slightly convoluted, but it should work nicely enough
 function random_name(seedString) {

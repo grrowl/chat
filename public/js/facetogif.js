@@ -40,7 +40,10 @@ faceToGif.prototype = {
   init: function () {
     var self = this;
 
-    this.video = document.querySelector('video');
+    // this.video = document.querySelector('video');
+    this.video = document.createElement('video');
+
+    this.videoContainer.appendChild(this.video);
 
     this.canvas = document.createElement('canvas');
 
@@ -216,6 +219,7 @@ faceToGif.prototype = {
 
   // start recording stream
   startRecording: function() {
+    var recorder = this.recorder;
     if (recorder.state === recorder.states.RECORDING || recorder.state === recorder.states.PAUSED) {
       // mainbutton.classList.remove('recording');
       // mainbutton.innerHTML = facetogif.str.COMPILING;
@@ -232,7 +236,8 @@ faceToGif.prototype = {
         img.src = URL.createObjectURL(blob);
         img.dataset.blobindex = facetogif.blobs.push(blob) -1;
         img.dataset.framesindex = facetogif.frames.push(recorder.frames) -1;
-        facetogif.displayGIF(img);
+        console.log(img);
+        // facetogif.displayGIF(img);
         // mainbutton.removeAttribute('disabled');
         // mainbutton.classList.remove('processing');
         // mainbutton.parentNode.classList.remove('busy');
@@ -244,8 +249,8 @@ faceToGif.prototype = {
       track('recording', 'start');
       recorder.gif = new GIF({
         workers: 2,
-        width: facetogif.gifSettings.w,
-        height: facetogif.gifSettings.h,
+        width: this.size.w,
+        height: this.size.h,
         quality: 20,
         workerScript: 'js/facetogif/gif.worker.js'
       });
@@ -258,10 +263,12 @@ faceToGif.prototype = {
 
   // pause recording of stream
   pauseRecording: function() {
+    var recorder = this;
     if (recorder.state === recorder.states.RECORDING) {
       track('recording', 'pause');
       recorder.pause();
-      pause.innerHTML = facetogif.str.RESUME;
+      console.log('paused');
+      // pause.innerHTML = facetogif.str.RESUME;
       // facetogif.recIndicator.classList.remove('on');
       this.state = 'PAUSED';
     } else if (recorder.state === recorder.states.PAUSED) {
