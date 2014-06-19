@@ -13,9 +13,7 @@ var MessageList = React.createClass({
       if (filterRooms.indexOf(message.room) == -1) {
         return;
       }
-      messages.push(
-        <MessageItem message={message} />
-      );
+      messages.push(MessageItem( message ));
     });
 
     return (
@@ -31,15 +29,13 @@ var MessageItem = React.createClass({
     console.log('toggleLike', arguments);
   },
 
-  componentWillReceiveProps: function (nextProps) {
-    if (!nextProps.message.source)
-      return;
-
-    if (nextProps.message.source.length == 20) {
-      this.setState({
-        name: random_name(nextProps.message.source)
-      });
-    }
+  getName: function() {
+    if (!this.props.source)
+      return 'unknown';
+    else if (this.props.source.length == 20)
+      return random_name(this.props.source);
+    else
+      return this.props.source;
   },
 
   render: function () {
@@ -49,16 +45,44 @@ var MessageItem = React.createClass({
     if (this.state && this.state.name)
       name = this.state.name;
 
+    var image = this.transferPropsTo(
+      <MessageImage src={ this.props.imageData } />
+    );
+
     return (
       <li className={React.addons.classSet({
-        // completed: 'type-'+ this.props.message.action,
-        verified: ~~this.props.message.date
+        // completed: 'type-'+ this.props.action,
+        verified: ~~this.props.date
       })}>
-        <h4>{ name }</h4>
-        <div className="message" onDoubleClick={this.toggleLike}>
-          { this.props.message.text }
+        <h4>
+          { this.getName(name) }
+        </h4>
+        { image } 
+        <div className="message" onDoubleClick={ this.toggleLike }>
+          { this.props.text }
         </div>
       </li>
     );
+  }
+});
+
+var MessageImage = React.createClass({
+  render: function () {
+    console.log('messageimage', this.props);
+    if (this.props.data) {
+      return (
+        <img src={ this.props.data } />
+      );
+
+    } else if (this.props.src) {
+      return (
+        <img src={ this.props.src } />
+      );
+
+    } else {
+      return (
+        <div>x</div>
+      );
+    }
   }
 });

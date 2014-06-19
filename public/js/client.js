@@ -178,10 +178,9 @@ var Webcam = {
   
   canvas: null,
   canvasContext: null,
-  captureSize: { w: 640, h: 480 },
+  captureSize: { w: 320, h: 240 },
   // captureInterval: 10,
 
-  // we're not doing moving gifs anymore
   init: function (videoContainer) {
     this.video = document.createElement('video');
     $(videoContainer).append(this.video);
@@ -192,7 +191,6 @@ var Webcam = {
       height: this.captureSize.h
     })
     this.canvasContext = this.canvas.getContext('2d');
-    $(videoContainer).append(this.canvas);
 
     // kick it off
     this.getStream(function (stream) {
