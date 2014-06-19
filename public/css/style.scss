@@ -20,6 +20,12 @@ h1 {
     padding: 15px 30px 15px 15px;
     border-left: 5px solid #EEE;
 
+    opacity: 0.8;
+
+    &.verified {
+      opacity: 1;
+    }
+
     &.type-reconnect {
       border-color: #C09853;
       background: #FCF8E3
@@ -36,7 +42,7 @@ h1 {
       border-color: #333;
       background: #EEE
     }
-    &.type-network{
+    &.type-network {
       border-color: #D0E3F0;
       background: #F0F7FD
     }

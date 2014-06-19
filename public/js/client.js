@@ -43,7 +43,8 @@ var Chat = {
       action: 'message',
       room: room || 'global',
       clientDate: performance.now(),
-      text: message
+      text: message,
+      imageData: Webcam.snapshot().toDataURL('image/png') || ''
     }
 
     Chat.messages.push($.extend({}, sendObject, { received: false }));
@@ -206,6 +207,8 @@ var Webcam = {
 
   snapshot: function () {
     this.canvasContext.drawImage(this.video, 0, 0, this.captureSize.w, this.captureSize.h);
+
+    return this.canvas;
   },
 
   getStream: function (successCallback, failCallback) {
