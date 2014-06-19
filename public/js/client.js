@@ -172,19 +172,70 @@ var UI = {
 }
 
 var Webcam = {
-  faceToGif: undefined,
+  video: null,
+  videoSize: { w: 640, h: 480 },
+  
+  canvas: null,
+  canvasContext: null,
+  captureSize: { w: 640, h: 480 },
+  // captureInterval: 10,
 
+  // we're not doing moving gifs anymore
+  init: function (videoContainer) {
+    this.video = document.createElement('video');
+    $(videoContainer).append(this.video);
+    
+    this.canvas = document.createElement('canvas');
+    $(this.canvas).attr({
+      width: this.captureSize.w,
+      height: this.captureSize.h
+    })
+    this.canvasContext = this.canvas.getContext('2d');
+    $(videoContainer).append(this.canvas);
+
+    // kick it off
+    this.getStream(function (stream) {
+      Webcam.video.src = window.URL.createObjectURL(stream);
+      Webcam.video.play(); // apparently important
+      Webcam.stream = stream;
+    },
+    function (fail) {
+      console.error(fail);
+    });
+  },
+
+  snapshot: function () {
+    this.canvasContext.drawImage(this.video, 0, 0, this.captureSize.w, this.captureSize.h);
+  },
+
+  getStream: function (successCallback, failCallback) {
+    return (
+      navigator.getUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.webkitGetUserMedia ||
+      function () {
+        console.error('getUserMedia not supported');
+      }
+    ).call(navigator, { video: true }, successCallback, failCallback);
+  },
+
+
+
+  /*
+  faceToGif: undefined,
   init: function () {
     this.faceToGif = new faceToGif(document.getElementById('webcamPreview'));
-    this.faceToGif.startStreaming(function () {
-      console.log('webam success!');
+    this.faceToGif.play(function (status) {
+      if (!status)
+        return console.error('webcam failure');
     });
   }
+  */
 }
 
 $(Chat.init.bind(Chat));
 $(UI.init.bind(UI));
-$(Webcam.init.bind(Webcam));
+$(Webcam.init.bind(Webcam, '#webcamPreview'));
 
 // well this is slightly convoluted, but it should work nicely enough
 function random_name(seedString) {
