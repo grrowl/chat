@@ -78,5 +78,5 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 [ ] upload (see below)
 
 #### longer term considerations
-data[message].clientDate should NOT be sent to all clients (timing attack)
-base64 means the queue will fill (size-wise) and could back up/overflow
+* data[message].clientDate should NOT be sent to all clients (timing attack)
+* base64 means the queue will fill (size-wise) and could back up/overflow

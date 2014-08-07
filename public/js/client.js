@@ -25,7 +25,7 @@ var Chat = {
       }
 
       UI.refresh();
-    }
+    };
   },
 
   // update connection status (connecting)
@@ -45,7 +45,7 @@ var Chat = {
       clientDate: performance.now(),
       text: message,
       imageData: Webcam.snapshot().toDataURL('image/png') || ''
-    }
+    };
 
     Chat.messages.push($.extend({}, sendObject, { received: false }));
     this.primus.write(sendObject);
@@ -66,8 +66,8 @@ var Chat = {
     var primus = this.primus;
 
     primus.on('reconnecting', function reconnecting(opts) {
-      console.warn('reconnecting', 'We are <strong>scheduling</strong> a new reconnect attempt. This is attempt <strong>'+ opts.attempt +'</strong> and will trigger a reconnect operation in <strong>'+ opts.timeout +'</strong> ms.')
-      Chat.updateStatus('reconnecting')
+      console.warn('reconnecting', 'We are <strong>scheduling</strong> a new reconnect attempt. This is attempt <strong>'+ opts.attempt +'</strong> and will trigger a reconnect operation in <strong>'+ opts.timeout +'</strong> ms.');
+      Chat.updateStatus('reconnecting');
     });
 
     primus.on('reconnect', function reconnect() {
@@ -115,7 +115,7 @@ var Chat = {
           });
 
           // Push onto list if doesn't already exist
-          if (existing == false)
+          if (existing === false)
             Chat.messages.push(data);
           break;
 
@@ -138,7 +138,7 @@ var Chat = {
       console.log('close', 'We\'ve lost the connection to the server.');
     });
   }
-}
+};
 
 // UI autonomy. Hopefully mostly abstracted framework
 var UI = {
@@ -156,7 +156,7 @@ var UI = {
       ev.preventDefault();
       Chat.message($message.val());
       $message.val('');
-    }
+    };
 
     $('#message').on('keypress', postMessage);
     $('#btn-post').on('click', postMessage);
@@ -170,12 +170,12 @@ var UI = {
       document.querySelector('#messageContainer')
     );
   }
-}
+};
 
 var Webcam = {
   video: null,
   videoSize: { w: 640, h: 480 },
-  
+
   canvas: null,
   canvasContext: null,
   captureSize: { w: 320, h: 240 },
@@ -184,12 +184,12 @@ var Webcam = {
   init: function (videoContainer) {
     this.video = document.createElement('video');
     $(videoContainer).append(this.video);
-    
+
     this.canvas = document.createElement('canvas');
     $(this.canvas).attr({
       width: this.captureSize.w,
       height: this.captureSize.h
-    })
+    });
     this.canvasContext = this.canvas.getContext('2d');
 
     // kick it off
@@ -232,7 +232,7 @@ var Webcam = {
     });
   }
   */
-}
+};
 
 $(Chat.init.bind(Chat));
 $(UI.init.bind(UI));
@@ -248,14 +248,15 @@ function random_name(seedString) {
 
   var primary = 0,
       secondary,
-      name;
+      name,
+      i;
 
-  for (var i = 0; i < seedString.length; i++) {
+  for (i = 0; i < seedString.length; i++) {
     primary += ( seedString.charCodeAt(i) * (i % 3) );
   }
 
   secondary = primary;
-  for (var i = 0; i < (primary % seedString.length); i++) {
+  for (i = 0; i < (primary % seedString.length); i++) {
     secondary += ( seedString.charCodeAt(i) * (i % 3) );
   }
 
