@@ -1,0 +1,40 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>pockychat</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/bootstrap.css">
+</head>
+<body>
+  <!--[if lt IE 8]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div class="well">
+    <h1>pockychat</h1>
+    <div id="status"></div>
+  </div>
+  <div class="well" id="messageContainer"></div>
+  <div class="input-group input-group-lg">
+    <input type="text" id="message" class="form-control" placeholder="OH HAI!">
+    <span class="input-group-btn">
+      <button id="btn-post" class="btn btn-primary">Post</button>
+    </span>
+  </div>
+  <div id="webcamPreview"></div>
+
+  <!-- All these script paths will be horribly broken for a while ey -->
+  <script src="'//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+  <script src="'//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="'/primus/primus.js"></script>
+  <script src="'/js/react/react-with-addons.js"></script>
+  <script src="'/js/react/JSXTransformer.js"></script>
+  <script src="'/js/facetogif.js"></script>
+  <script src="'/js/facetogif/gif.js"></script>
+  <script src="'/js/views.jsx" type="text/jsx"></script>
+  <script src="'/js/client.js"></script>
+</body>
+</html>

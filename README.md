@@ -1,4 +1,4 @@
-# pockychat
+ # pockychat
 
 Based on works:
 * https://github.com/primus/primus#connecting-from-the-browser
@@ -139,3 +139,7 @@ To build the project, without starting a web server run:
 Now browse to the app at [http://localhost:3000/](http://localhost:3000/)
 
 * Gulp documentation to the project is licensed under the [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/) license.
+
+### Some resources
+
+* http://www.sitepoint.com/introduction-gulp-js/
