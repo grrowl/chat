@@ -18,12 +18,14 @@ coverage
 .grunt
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+build
 
 # Dependency directory
 # Commenting this out is preferred by some people, see
 # https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules
+
+npm-debug.log
 
 # Users Environment Variables
 .lock-wscript
@@ -63,3 +65,6 @@ Temporary Items
 
 ### Sass ###
 .sass-cache
+
+## Bower
+bower_components
