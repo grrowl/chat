@@ -12,6 +12,10 @@ var runSequence = require('run-sequence');
 var webpack = require('webpack');
 var argv = require('minimist')(process.argv.slice(2));
 
+// Supporting libraries
+// var file = require('gulp-file');
+// var Primus = require('primus');
+
 // Settings
 var DEST = './build';
 var DEBUG = !argv.release;
@@ -144,6 +148,7 @@ gulp.task('watch', ['serve'], function () {
     gulp.watch('./src/assets/**', ['assets']);
     gulp.watch('./src/**/*.scss', ['styles']);
     gulp.watch('./src/**/*.js', ['bundle']);
+    gulp.watch('./src/**/*.jsx', ['bundle']);
 
     // Watch for changes in 'compiled' files
     gulp.watch(DEST + '/**', function (file) {

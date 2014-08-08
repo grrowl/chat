@@ -2,6 +2,8 @@
  * @jsx React.DOM
  */
 
+var React = require('react');
+
 // Message Views
 
 var MessageList = React.createClass({
@@ -57,7 +59,7 @@ var MessageItem = React.createClass({
         <h4>
           { this.getName(name) }
         </h4>
-        { image } 
+        { image }
         <div className="message" onDoubleClick={ this.toggleLike }>
           { this.props.text }
         </div>

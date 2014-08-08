@@ -1,144 +1,148 @@
 // Chat interfacing library
 
-module.exports = {
+(function () {
 
-  primus: undefined,
+  module.exports = {
 
-  // rooms we're in
-  joinedRooms: ['global', 'pockyboard'],
-  currentRoom: 'pockyboard',
+    primus: undefined,
 
-  // total message history in memory
-  messages: [],
+    // rooms we're in
+    joinedRooms: ['global', 'pockyboard'],
+    currentRoom: 'pockyboard',
 
-  // indexes of messages sent to the server and not received back yet
-  unverifiedMessageIndexes: [],
+    // total message history in memory
+    messages: [],
 
-  // Initialise the chat channel system
-  init: function () {
-    this.primus = new Primus();
-    this.primus = Primus.connect(window.location.href);
-    this.bindEvents();
+    // indexes of messages sent to the server and not received back yet
+    unverifiedMessageIndexes: [],
 
-    this.messages.push = function (message) {
-      var newIndex = Array.prototype.push.call(Chat.messages, message);
+    // Initialise the chat channel system
+    init: function () {
+      this.primus = new Primus();
+      this.primus = Primus.connect(window.location.href);
+      this.bindEvents();
 
-      if (typeof message.date == 'undefined') {
-        Chat.unverifiedMessageIndexes.push(newIndex - 1);
-      }
+      this.messages.push = function (message) {
+        var newIndex = Array.prototype.push.call(Chat.messages, message);
 
-      UI.refresh();
-    };
-  },
+        if (typeof message.date == 'undefined') {
+          Chat.unverifiedMessageIndexes.push(newIndex - 1);
+        }
 
-  // update connection status (connecting)
-  updateStatus: function (status) {
-    $('#status').text(status);
-  },
+        UI.refresh();
+      };
+    },
 
-  // Send message to room
-  message: function (message, room) {
-    var sendObject;
-    if (!this.primus)
-      return console.error('message', 'Not connected');
+    // update connection status (connecting)
+    updateStatus: function (status) {
+      $('#status').text(status);
+    },
 
-    sendObject = {
-      action: 'message',
-      room: room || 'global',
-      clientDate: performance.now(),
-      text: message,
-      imageData: Webcam.snapshot().toDataURL('image/png') || ''
-    };
+    // Send message to room
+    message: function (message, room) {
+      var sendObject;
+      if (!this.primus)
+        return console.error('message', 'Not connected');
 
-    Chat.messages.push($.extend({}, sendObject, { received: false }));
-    this.primus.write(sendObject);
-  },
+      sendObject = {
+        action: 'message',
+        room: room || 'global',
+        clientDate: performance.now(),
+        text: message,
+        imageData: Webcam.snapshot().toDataURL('image/png') || ''
+      };
 
-  // Join a room/channel
-  join: function (room) {
-    this.primus.write({ action: 'join', room: room });
-  },
+      Chat.messages.push($.extend({}, sendObject, { received: false }));
+      this.primus.write(sendObject);
+    },
 
-  // Leave a room/channel
-  leave: function (room) {
-    this.primus.write({ action: 'leave', room: room });
-  },
+    // Join a room/channel
+    join: function (room) {
+      this.primus.write({ action: 'join', room: room });
+    },
 
-  // Bind chat/protocol events
-  bindEvents: function () {
-    var primus = this.primus;
+    // Leave a room/channel
+    leave: function (room) {
+      this.primus.write({ action: 'leave', room: room });
+    },
 
-    primus.on('reconnecting', function reconnecting(opts) {
-      console.warn('reconnecting', 'We are <strong>scheduling</strong> a new reconnect attempt. This is attempt <strong>'+ opts.attempt +'</strong> and will trigger a reconnect operation in <strong>'+ opts.timeout +'</strong> ms.');
-      Chat.updateStatus('reconnecting');
-    });
+    // Bind chat/protocol events
+    bindEvents: function () {
+      var primus = this.primus;
 
-    primus.on('reconnect', function reconnect() {
-      console.warn('reconnect', 'Starting the reconnect attempt, hopefully we get a connection!');
-    });
-
-    primus.on('online', function online() {
-      console.log('online', 'We have regained control over our internet connection.');
-    });
-
-    primus.on('offline', function offline() {
-      console.log('offline', 'We lost our internet connection.');
-    });
-
-    primus.on('open', function open() {
-      console.log('open', 'The connection has been established.');
-      Chat.updateStatus('connected');
-
-      // (re-)join our rooms
-      Chat.join(Chat.joinedRooms.join(' '), function () {
-        console.log('init', 'joined rooms '+ Chat.joinedRooms);
+      primus.on('reconnecting', function reconnecting(opts) {
+        console.warn('reconnecting', 'We are <strong>scheduling</strong> a new reconnect attempt. This is attempt <strong>'+ opts.attempt +'</strong> and will trigger a reconnect operation in <strong>'+ opts.timeout +'</strong> ms.');
+        Chat.updateStatus('reconnecting');
       });
-    });
 
-    primus.on('error', function error(err) {
-      console.error('error', 'An unknown error has occurred <code>'+ err.message +'</code>');
-    });
+      primus.on('reconnect', function reconnect() {
+        console.warn('reconnect', 'Starting the reconnect attempt, hopefully we get a connection!');
+      });
 
-    primus.on('data', function incoming(data) {
-      switch (data.action) {
-        case 'message':
-          var existing = false;
-          // check if message exists as pending
-          Chat.unverifiedMessageIndexes.forEach(function (index, unverifiedIndex) {
-            if (data.clientDate == Chat.messages[index].clientDate) {
-              // found it! lets merge
-              Chat.messages[index] = $.extend({}, Chat.messages[index], data);
-              // remove unverified index
-              Chat.unverifiedMessageIndexes.splice(unverifiedIndex, 1);
+      primus.on('online', function online() {
+        console.log('online', 'We have regained control over our internet connection.');
+      });
 
-              existing = true;
-              UI.refresh(); // force refresh
-              return false;
-            }
-          });
+      primus.on('offline', function offline() {
+        console.log('offline', 'We lost our internet connection.');
+      });
 
-          // Push onto list if doesn't already exist
-          if (existing === false)
-            Chat.messages.push(data);
-          break;
+      primus.on('open', function open() {
+        console.log('open', 'The connection has been established.');
+        Chat.updateStatus('connected');
 
-        default:
-        case 'raw':
-          Chat.messages.push({
-            date: performance.now(),
-            source: 'system',
-            message: data
-          });
-      }
-    });
+        // (re-)join our rooms
+        Chat.join(Chat.joinedRooms.join(' '), function () {
+          console.log('init', 'joined rooms '+ Chat.joinedRooms);
+        });
+      });
 
-    primus.on('end', function end() {
-      console.log('end', 'The connection has ended.');
-      Chat.updateStatus('finished');
-    });
+      primus.on('error', function error(err) {
+        console.error('error', 'An unknown error has occurred <code>'+ err.message +'</code>');
+      });
 
-    primus.on('close', function end() {
-      console.log('close', 'We\'ve lost the connection to the server.');
-    });
-  }
-};
+      primus.on('data', function incoming(data) {
+        switch (data.action) {
+          case 'message':
+            var existing = false;
+            // check if message exists as pending
+            Chat.unverifiedMessageIndexes.forEach(function (index, unverifiedIndex) {
+              if (data.clientDate == Chat.messages[index].clientDate) {
+                // found it! lets merge
+                Chat.messages[index] = $.extend({}, Chat.messages[index], data);
+                // remove unverified index
+                Chat.unverifiedMessageIndexes.splice(unverifiedIndex, 1);
+
+                existing = true;
+                UI.refresh(); // force refresh
+                return false;
+              }
+            });
+
+            // Push onto list if doesn't already exist
+            if (existing === false)
+              Chat.messages.push(data);
+            break;
+
+          default:
+          case 'raw':
+            Chat.messages.push({
+              date: performance.now(),
+              source: 'system',
+              message: data
+            });
+        }
+      });
+
+      primus.on('end', function end() {
+        console.log('end', 'The connection has ended.');
+        Chat.updateStatus('finished');
+      });
+
+      primus.on('close', function end() {
+        console.log('close', 'We\'ve lost the connection to the server.');
+      });
+    }
+  };
+
+})();

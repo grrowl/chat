@@ -10,11 +10,12 @@
     "jquery": "^2.1.1",
     "react": "^0.11.1",
 
-    "engine.io": "~1.1.1",
     "performance-now": "~0.1.3",
 
-    "primus": "2.2.x",
-    "primus-rooms": "~3.0.4"
+    "ejs": "*",
+    "primus": "^2.4",
+    "primus-rooms": "^3.0",
+    "engine.io": "^1.3.1"
   },
   "devDependencies": {
     "ecstatic": "^0.5.4",
@@ -26,6 +27,7 @@
     "gulp-jshint": "^1.8.4",
 
     "gulp-sass": "^0.7.2",
+    "gulp-file": "^0.1.0",
 
     "gulp-livereload": "^2.1.0",
     "gulp-load-plugins": "^0.5.3",
