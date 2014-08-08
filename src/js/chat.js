@@ -2,6 +2,9 @@
 
 (function () {
 
+  var $ = require('jquery'),
+      Webcam = require('./webcam');
+
   module.exports = {
 
     primus: undefined,
@@ -23,10 +26,10 @@
       this.bindEvents();
 
       this.messages.push = function (message) {
-        var newIndex = Array.prototype.push.call(Chat.messages, message);
+        var newIndex = Array.prototype.push.call(this.messages, message);
 
         if (typeof message.date == 'undefined') {
-          Chat.unverifiedMessageIndexes.push(newIndex - 1);
+          this.unverifiedMessageIndexes.push(newIndex - 1);
         }
 
         UI.refresh();
@@ -52,7 +55,7 @@
         imageData: Webcam.snapshot().toDataURL('image/png') || ''
       };
 
-      Chat.messages.push($.extend({}, sendObject, { received: false }));
+      this.messages.push($.extend({}, sendObject, { received: false }));
       this.primus.write(sendObject);
     },
 
@@ -68,11 +71,12 @@
 
     // Bind chat/protocol events
     bindEvents: function () {
-      var primus = this.primus;
+      var self = this,
+          primus = this.primus;
 
       primus.on('reconnecting', function reconnecting(opts) {
         console.warn('reconnecting', 'We are <strong>scheduling</strong> a new reconnect attempt. This is attempt <strong>'+ opts.attempt +'</strong> and will trigger a reconnect operation in <strong>'+ opts.timeout +'</strong> ms.');
-        Chat.updateStatus('reconnecting');
+        self.updateStatus('reconnecting');
       });
 
       primus.on('reconnect', function reconnect() {
@@ -89,11 +93,11 @@
 
       primus.on('open', function open() {
         console.log('open', 'The connection has been established.');
-        Chat.updateStatus('connected');
+        self.updateStatus('connected');
 
         // (re-)join our rooms
-        Chat.join(Chat.joinedRooms.join(' '), function () {
-          console.log('init', 'joined rooms '+ Chat.joinedRooms);
+        self.join(self.joinedRooms.join(' '), function () {
+          console.log('init', 'joined rooms '+ self.joinedRooms);
         });
       });
 
@@ -106,12 +110,12 @@
           case 'message':
             var existing = false;
             // check if message exists as pending
-            Chat.unverifiedMessageIndexes.forEach(function (index, unverifiedIndex) {
-              if (data.clientDate == Chat.messages[index].clientDate) {
+            self.unverifiedMessageIndexes.forEach(function (index, unverifiedIndex) {
+              if (data.clientDate == self.messages[index].clientDate) {
                 // found it! lets merge
-                Chat.messages[index] = $.extend({}, Chat.messages[index], data);
+                self.messages[index] = $.extend({}, self.messages[index], data);
                 // remove unverified index
-                Chat.unverifiedMessageIndexes.splice(unverifiedIndex, 1);
+                self.unverifiedMessageIndexes.splice(unverifiedIndex, 1);
 
                 existing = true;
                 UI.refresh(); // force refresh
@@ -121,12 +125,12 @@
 
             // Push onto list if doesn't already exist
             if (existing === false)
-              Chat.messages.push(data);
+              self.messages.push(data);
             break;
 
           default:
           case 'raw':
-            Chat.messages.push({
+            self.messages.push({
               date: performance.now(),
               source: 'system',
               message: data
@@ -136,7 +140,7 @@
 
       primus.on('end', function end() {
         console.log('end', 'The connection has ended.');
-        Chat.updateStatus('finished');
+        this.updateStatus('finished');
       });
 
       primus.on('close', function end() {

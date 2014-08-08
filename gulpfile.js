@@ -47,6 +47,7 @@ gulp.task('vendor', function () {
 // Copy static files / assets
 // -----------------------------------------------------------------------------
 gulp.task('assets', function () {
+
     return es.merge(
         gulp.src('./src/assets/**')
             .pipe(gulp.dest(DEST)),
@@ -107,13 +108,15 @@ gulp.task('build', ['clean'], function (cb) {
 // -----------------------------------------------------------------------------
 gulp.task('serve', ['build'], function (next) {
     var url = require('url');
-    var server = require('ecstatic')({
+    var server = require('http').createServer();
+    var staticHandler = require('ecstatic')({
         root: './', cache: 'no-cache', showDir: true
     });
     var port = 3000;
 
-    require('http').createServer()
-        .on('request', function (req, res) {
+    // Handle static file requests with ecstatic
+    server.
+        on('request', function (req, res) {
             // For non-existent files output the contents of /index.html page in order to make HTML5 routing work
             var urlPath = url.parse(req.url).pathname;
             if (urlPath === '/') {
@@ -128,14 +131,17 @@ gulp.task('serve', ['build'], function (next) {
                     req.url = DEST.substring(1) + req.url;
                 }
             }
-            server(req, res);
-        })
-        .listen(port, function () {
+            staticHandler(req, res);
+        }).
+        listen(port, function () {
             $.util.log('Server is listening on ' + $.util.colors.magenta('http://localhost:' + port + '/'));
             next();
         });
 
-    // var primus = $.primus(server, { transformer: 'engine.io' });
+    // Attach primus
+    var primus = require('primus')(server, {
+        transformer: 'engine.io'
+    });
 });
 
 // Watch for changes in source files
@@ -145,6 +151,7 @@ gulp.task('watch', ['serve'], function () {
     var lr = require('gulp-livereload');
 
     // Watch for changes in source files
+    gulp.watch('./src/index.html', ['assets']);
     gulp.watch('./src/assets/**', ['assets']);
     gulp.watch('./src/**/*.scss', ['styles']);
     gulp.watch('./src/**/*.js', ['bundle']);
