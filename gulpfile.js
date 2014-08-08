@@ -66,7 +66,7 @@ gulp.task('styles', function () {
         .pipe($.plumber())
         .pipe($.sass({
             style: 'compressed',
-            sourceComments: 'map'
+            // sourceComments: 'map'
         }))
         .on('error', $.util.log)
         .pipe(DEBUG ? $.util.noop() : $.minifyCss())
@@ -101,9 +101,11 @@ gulp.task('build', ['clean'], function (cb) {
 
 // Launch a lightweight HTTP Server
 // -----------------------------------------------------------------------------
-gulp.task('serve', ['build', 'chat'], function (next) {
+gulp.task('serve', ['build'], function (next) {
     var url = require('url');
-    var server = require('ecstatic')({root: './', cache: 'no-cache', showDir: true});
+    var server = require('ecstatic')({
+        root: './', cache: 'no-cache', showDir: true
+    });
     var port = 3000;
 
     require('http').createServer()
@@ -128,6 +130,8 @@ gulp.task('serve', ['build', 'chat'], function (next) {
             $.util.log('Server is listening on ' + $.util.colors.magenta('http://localhost:' + port + '/'));
             next();
         });
+
+    // var primus = $.primus(server, { transformer: 'engine.io' });
 });
 
 // Watch for changes in source files
@@ -153,12 +157,9 @@ gulp.task('watch', ['serve'], function () {
 // Run the primus chat message handler
 // task 'serve' will run this
 // -----------------------------------------------------------------------------
-gulp.task('chat', ['serve'], function () {
-    var primus = require('primus');
-
-    primus = new Primus(server, { transformer: 'engine.io' });
-
-})
+// gulp.task('chat', ['serve'], function () {
+    // TODO: move primus logic into this task
+// })
 
 /*
 // Deploy to GitHub Pages. See: https://pages.github.com
