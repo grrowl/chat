@@ -56,7 +56,17 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
                    ( endpoint: /history?since=x )
 ````
 
-## TODO
+## TODOs
+
+### Gulp migration
+
+* Webpack - restructure JS assets
+* Primus: serve primus.js library
+* Primus: hook into server
+*
+
+### Chat features
+
 [/] Tighening of message passing. Both server (db) and client (`Chat.messages`) simply extend Messages on update based on Message.clientDate (unverified messages) or Message.serverDate (known messages)
 [/] Store messages and room lists in-memory, sync UI when needed (React.js?)
 [ ] Webcam capture and encoding
@@ -80,6 +90,10 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 #### longer term considerations
 * data[message].clientDate should NOT be sent to all clients (timing attack)
 * base64 means the queue will fill (size-wise) and could back up/overflow
+
+# LICENCE
+
+This project is subject to the GPL for now, and incorporates some code distributed under the MIT Licence (such as the React-Seed boilerplate code, referenced below).
 
 # Gulp information ([React-Seed](https://github.com/kriasoft/React-Seed))
 

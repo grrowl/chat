@@ -143,6 +143,7 @@ gulp.task('watch', ['serve'], function () {
     // Watch for changes in source files
     gulp.watch('./src/assets/**', ['assets']);
     gulp.watch('./src/**/*.scss', ['styles']);
+    gulp.watch('./src/**/*.js', ['bundle']);
 
     // Watch for changes in 'compiled' files
     gulp.watch(DEST + '/**', function (file) {

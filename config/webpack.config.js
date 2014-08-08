@@ -21,7 +21,7 @@ module.exports = function (isDebug) {
         cache: isDebug,
         debug: isDebug,
         devtool: false,
-        entry: './src/app.jsx',
+        entry: './src/js/app.js',
 
         stats: {
             colors: true,
