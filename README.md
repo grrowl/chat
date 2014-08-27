@@ -61,9 +61,9 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 ### Gulp migration
 
 * Webpack - restructure JS assets
+  * CLEAN UP FEATURES just delete lines until we're functional again.
 * Primus: serve primus.js library
 * Primus: hook into server
-*
 
 ### Chat features
 
@@ -84,10 +84,22 @@ All messages are in the `Chat.history`. Updates from the server can be checked a
 [ ] SSL-TLS
 
 
-### todo 2
-[ ] upload (see below)
+### webm
 
-#### longer term considerations
+* WebM encoding on the client side with [whammy](https://github.com/antimatter15/whammy)
+* Re-encoding that file upon upload using ffmpeg
+  * I had to install with `--enable-libvpx --enable-libvorbis`
+  * on OSX: `brew install ffmpeg --with-libvpx --with-libvorbis`
+  * Look up options at https://trac.ffmpeg.org/wiki/Encode/VP8
+  * No audio `-an`
+  * Re-encode test results:
+    1. `ffmpeg -i input.mp4 -c:v libvpx -crf 10 -b:v 1M -an output.webm`: 1.1MB -> 298KB
+    2. `ffmpeg -i input.mp4 -c:v libvpx -crf 20 -b:v 512KB -an output.webm`: 1.1MB -> 197KB (mildly degraded quality?)
+    3. `ffmpeg -i input.mp4 -c:v libvpx -crf 60 -b:v 128KB -an output.webm`: 1.1MB -> 125KB (as above)
+  * When primus receives a "image" message, pipe it through a bash script to standardise the above commands ([see this](https://trac.ffmpeg.org/wiki/FilteringGuide#Scriptingyourcommandlineparameters))
+  * we can pipe a stream directly into ffmpeg `cat webm-test-raw.webm | ffmpeg -i pipe:0 -c:v libvpx -crf 10 -b:v 1M -an webm-test-pipe1.webm`
+
+### longer term considerations
 * data[message].clientDate should NOT be sent to all clients (timing attack)
 * base64 means the queue will fill (size-wise) and could back up/overflow
 
