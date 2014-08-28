@@ -15,6 +15,8 @@
     // captureInterval: 10,
 
     init: function (videoContainer) {
+      var self = this;
+
       this.video = document.createElement('video');
       $(videoContainer).append(this.video);
 
@@ -27,9 +29,9 @@
 
       // kick it off
       this.getStream(function (stream) {
-        Webcam.video.src = window.URL.createObjectURL(stream);
-        Webcam.video.play(); // apparently important
-        Webcam.stream = stream;
+        self.video.src = window.URL.createObjectURL(stream);
+        self.video.play(); // apparently important
+        self.stream = stream;
       },
       function (fail) {
         console.error(fail);

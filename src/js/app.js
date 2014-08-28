@@ -2,7 +2,9 @@
 (function () {
 
   var $ = require('jquery'),
-      Chat = require('./chat'),
+      Whammy = require('whammy');
+
+  var Chat = require('./chat'),
       UI = require('./ui'),
       Webcam = require('./webcam'),
       Views = require('./views.jsx');

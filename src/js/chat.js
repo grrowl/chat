@@ -10,8 +10,7 @@
     primus: undefined,
 
     // rooms we're in
-    joinedRooms: ['global', 'pockyboard'],
-    currentRoom: 'pockyboard',
+    rooms: ['global', 'pockyboard'],
 
     // total message history in memory
     messages: [],
@@ -96,8 +95,8 @@
         self.updateStatus('connected');
 
         // (re-)join our rooms
-        self.join(self.joinedRooms.join(' '), function () {
-          console.log('init', 'joined rooms '+ self.joinedRooms);
+        self.join(self.rooms.join(' '), function () {
+          console.log('init', 'joined rooms '+ self.rooms);
         });
       });
 
