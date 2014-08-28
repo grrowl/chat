@@ -112,7 +112,5 @@ AppDispatcher.register(function(payload) {
 
 });
 
-console.log('messagestore', _messages);
-
 
 module.exports = MessageStore;

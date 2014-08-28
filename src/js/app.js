@@ -25,8 +25,9 @@
     }
   );
 
-
-  var MessageList = require('./components/views.jsx').MessageList;
+  var Views = require('./components/views.jsx');
+  var MessageList = Views.MessageList;
+  var MessageInput = Views.MessageInput;
 
   React.renderComponent(
     MessageList({ room: 'pockychat' }),

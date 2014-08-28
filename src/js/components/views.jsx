@@ -7,6 +7,7 @@ var addons = require('react/addons').addons;
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var MessageStore = require('../stores/MessageStore');
+var MessageActions = require('../stores/MessageActions');
 
 // Message Views
 
@@ -50,10 +51,22 @@ var MessageList = React.createClass({
     });
 
     return (
-      <ul id="log">
-        {messages}
-      </ul>
+      <div>
+        <ul id="log">
+          {messages}
+        </ul>
+        <MessageInput
+          placeholder={"Say something to room "+ this.props.room}
+          onSave={this._createMessage} />
+      </div>
     );
+  },
+
+  _createMessage: function(messageText) {
+    MessageActions.create({
+      room: this.props.room,
+      message: messageText
+    })
   }
 });
 
@@ -83,7 +96,6 @@ var MessageItem = React.createClass({
       <MessageImage src={ this.props.imageData } />
     );
 
-    console.log(React);
     return (
       <li className={React.addons.classSet({
         // completed: 'type-'+ this.props.action,
@@ -123,8 +135,66 @@ var MessageImage = React.createClass({
 });
 
 
+var MessageInput = React.createClass({
+
+  propTypes: {
+    onSave: React.PropTypes.func.isRequired,
+    placeholder: React.PropTypes.string,
+    value: React.PropTypes.string
+  },
+
+  getInitialState: function () {
+    return {
+      value: this.props.value || ''
+    }
+  },
+
+  _save: function () {
+    this.props.onSave(this.state.value);
+
+    // Reset state
+    this.setState({
+      value: this.props.value || ''
+    });
+  },
+
+  _onClick: function () {
+    this._save();
+  },
+
+  _onChange: function(event) {
+    this.setState({
+      value: event.target.value
+    });
+  },
+
+  _onKeyDown: function (event) {
+    // KEY_ENTER == 13
+    if (event.keyCode == 13)
+      this._save();
+  },
+
+  render: function () {
+    return (
+      <div className="input-group input-group-lg">
+        <input
+          type="text" className="form-control"
+          placeholder={this.props.placeholder}
+          onChange={this._onChange}
+          onKeyDown={this._onKeyDown}
+          value={this.state.value}
+         />
+        <span className="input-group-btn">
+          <button id="btn-post" className="btn btn-primary"
+          onClick={this._onClick}>Post</button>
+        </span>
+      </div>
+    );
+  }
+});
+
 module.exports = {
   MessageList: MessageList,
   MessageItem: MessageItem,
   MessageImage: MessageImage
-}
+};
