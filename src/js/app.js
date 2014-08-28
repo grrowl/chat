@@ -7,27 +7,10 @@
   var React = require('react');
 
   var AppDispatcher = require('./dispatcher/AppDispatcher');
-  // var MessageStore = require('./stores/MessageStore');
 
-  AppDispatcher.register(function(payload) {
-    console.log('AppDispatcher payload', payload, payload.action.actionType == 'MESSAGE_CREATE');
-  });
+  var ChatClient = require('./ChatClient');
 
-  AppDispatcher.handleViewAction(
-    {
-      actionType: 'MESSAGE_CREATE',
-      data: {
-        serverDate: 12121212,
-        room: 'pockychat',
-        messsage: 'hey buddy',
-        name: 'a butt'
-      }
-    }
-  );
-
-  var Views = require('./components/views.jsx');
-  var MessageList = Views.MessageList;
-  var MessageInput = Views.MessageInput;
+  var MessageList = require('./components/views.jsx').MessageList;
 
   React.renderComponent(
     MessageList({ room: 'pockychat' }),

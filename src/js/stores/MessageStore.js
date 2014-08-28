@@ -60,7 +60,7 @@ var MessageStore = merge(EventEmitter.prototype, {
 
     for (var i in _messages) {
       if (callback(_messages[i]))
-        messages[i] = _messages[i];
+        messages.push(_messages[i]);
     }
 
     return messages;
@@ -94,7 +94,6 @@ AppDispatcher.register(function(payload) {
   switch(action.actionType) {
     case 'MESSAGE_CREATE':
       create(message);
-      console.log(_messages);
       break;
 
     case 'MESSAGE_UPDATE':
@@ -102,10 +101,9 @@ AppDispatcher.register(function(payload) {
       break;
 
     default:
-      console.log('messagestore yeahhh', action.actionType, message);
       return true; // resolve promise
   }
-      console.log('messagestore yeahhh', action.actionType, message);
+  console.log('messagestore event', action.actionType, message);
 
   MessageStore.emitChange(); // also, something changed
   return true; // resolve promise

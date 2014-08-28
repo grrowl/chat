@@ -7,35 +7,39 @@ var addons = require('react/addons').addons;
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var MessageStore = require('../stores/MessageStore');
-var MessageActions = require('../stores/MessageActions');
+var MessageActions = require('../actions/MessageActions');
 
 // Message Views
 
 var MessageList = React.createClass({
-  roomFilter: function (message) {
-    return message.room === this.props.room;
+  propTypes: {
+    room: React.PropTypes.string.isRequired,
+  },
+
+  _roomFilter: function (message) {
+    return !!(message.room === this.props.room);
   },
 
   getInitialState: function() {
     return {
-      messages: MessageStore.getFiltered(this.roomFilter)
+      messages: MessageStore.getFiltered(this._roomFilter)
     };
   },
 
   // Set up
-  comoponentDidMount: function () {
+  componentDidMount: function () {
     MessageStore.addChangeListener(this._onChange);
   },
 
   // Tear down
-  comoponentDidUnmount: function () {
+  componentDidUnmount: function () {
     MessageStore.removeChangeListener(this._onChange);
   },
 
   // handler for when one of our stores changes
   _onChange: function () {
     this.setState({
-      messages: MessageStore.getFiltered(this.roomFilter)
+      messages: MessageStore.getFiltered(this._roomFilter)
     });
   },
 
@@ -62,11 +66,8 @@ var MessageList = React.createClass({
     );
   },
 
-  _createMessage: function(messageText) {
-    MessageActions.create({
-      room: this.props.room,
-      message: messageText
-    })
+  _createMessage: function(text) {
+    MessageActions.create(text, this.props.room);
   }
 });
 
@@ -86,15 +87,13 @@ var MessageItem = React.createClass({
   },
 
   render: function () {
+    console.log('messageitem', this.props);
+
     // once we implement formatting:
     // <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
     var name = 'unknown';
-    if (this.state && this.state.name)
-      name = this.state.name;
-
-    var image = this.transferPropsTo(
-      <MessageImage src={ this.props.imageData } />
-    );
+    if (this.props && this.props.name)
+      name = this.props.name;
 
     return (
       <li className={React.addons.classSet({
@@ -104,33 +103,12 @@ var MessageItem = React.createClass({
         <h4>
           { this.getName(name) }
         </h4>
-        { image }
         <div className="message" onDoubleClick={ this.toggleLike }>
-          { this.props.text }
+          { this.props.text }<br />
+          { this.props.clientDate } / { this.props.serverDate }
         </div>
       </li>
     );
-  }
-});
-
-var MessageImage = React.createClass({
-  render: function () {
-    console.log('messageimage', this.props);
-    if (this.props.data) {
-      return (
-        <img src={ this.props.data } />
-      );
-
-    } else if (this.props.src) {
-      return (
-        <img src={ this.props.src } />
-      );
-
-    } else {
-      return (
-        <div>x</div>
-      );
-    }
   }
 });
 
@@ -195,6 +173,5 @@ var MessageInput = React.createClass({
 
 module.exports = {
   MessageList: MessageList,
-  MessageItem: MessageItem,
-  MessageImage: MessageImage
+  MessageItem: MessageItem
 };

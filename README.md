@@ -77,12 +77,16 @@ Connection: (primus)
 
 ### Message struct:
 
-~room    : optional?, room to broadcast to
-action  one of [ message*, join, leave, message, system ]
-message : required, text to display
+{
+  source: spark id
 
-clientDate : sent by client, only sent back to original client as confirmation
-serverDate : global id
+  ~room    : optional?, room to broadcast to
+  action  one of [ message*, join, leave, message, system ]
+  text : required, text to display
+
+  clientDate : sent by client, only sent back to original client as acknowledgement
+  serverDate : global id, set by server ONLY.
+}
 
 Messages are sent to the server with a .clientDate. The server will always
 reply with a .serverDate parameter
