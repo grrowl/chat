@@ -3,15 +3,46 @@
  */
 
 var React = require('react');
+var addons = require('react/addons').addons;
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var MessageStore = require('../stores/MessageStore');
 
 // Message Views
 
 var MessageList = React.createClass({
+  roomFilter: function (message) {
+    return message.room === this.props.room;
+  },
+
+  getInitialState: function() {
+    return {
+      messages: MessageStore.getFiltered(this.roomFilter)
+    };
+  },
+
+  // Set up
+  comoponentDidMount: function () {
+    MessageStore.addChangeListener(this._onChange);
+  },
+
+  // Tear down
+  comoponentDidUnmount: function () {
+    MessageStore.removeChangeListener(this._onChange);
+  },
+
+  // handler for when one of our stores changes
+  _onChange: function () {
+    this.setState({
+      messages: MessageStore.getFiltered(this.roomFilter)
+    });
+  },
+
   render: function() {
     var messages = [],
-        filterRooms = ['global', Chat.currentRoom];
+        filterRooms = ['system', this.props.room ];
 
-    this.props.messages.forEach(function (message) {
+    this.state.messages.forEach(function (message) {
       if (filterRooms.indexOf(message.room) == -1) {
         return;
       }
@@ -29,6 +60,7 @@ var MessageList = React.createClass({
 var MessageItem = React.createClass({
   toggleLike: function() {
     console.log('toggleLike', arguments);
+    alert('great work!');
   },
 
   getName: function() {
@@ -51,6 +83,7 @@ var MessageItem = React.createClass({
       <MessageImage src={ this.props.imageData } />
     );
 
+    console.log(React);
     return (
       <li className={React.addons.classSet({
         // completed: 'type-'+ this.props.action,
@@ -88,3 +121,10 @@ var MessageImage = React.createClass({
     }
   }
 });
+
+
+module.exports = {
+  MessageList: MessageList,
+  MessageItem: MessageItem,
+  MessageImage: MessageImage
+}
