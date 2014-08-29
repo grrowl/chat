@@ -9,15 +9,8 @@ var CHANGE_EVENT = 'change';
 // Messages storage
 var _messages = {};
 
-/**
- * Create a Message
- * @param message The message object
- */
-function create(message) {
-  id = message.serverDate || message.clientDate;
-
-  _messages[id] = message;
-}
+// TODO: implement _unvalidatedMessageIndexes, for messages saved as
+// .clientDate awaiting a valid .serverDate
 
 /**
  * Update a Message
@@ -25,19 +18,37 @@ function create(message) {
  * @param {object} updates An object literal containing only the data to be
  *     updated.
  */
-function update(id, updates) {
-  var localId = updates.clientDate;
+function update(updates) {
+  var id = updates.serverDate,
+      localId = updates.clientDate;
 
   // Check if the update is an acknowledgement of a previously sent message.
   // This will false positive if the server sends a clientDate incorrectly,
   // and that exact timestamp exists on our side. The chances of an *exact*
   // microsecond id collision is very low. I hope.
   if (localId && id && _messages[localId]) {
-    _messages[id] = _messages[localId];
+    // Migrate message
+
+    _messages[id] = merge(_messages[localId], updates);
     delete _messages[localId];
+
+    console.log('moving ', localId, 'to', id);
+
+  } else if (localId && id === undefined) {
+    // New message, before server ack
+    _messages[localId] = updates;
+
+  } else if (_messages[id] === undefined) {
+    // Server sent message unknown to us
+    _messages[id] = updates;
+
+  } else {
+    // Server sent message known to us -- merge
+    _messages[id] = merge(_messages[id], updates);
   }
 
-  _messages[id] = merge(_messages[id], updates);
+  console.log('updated store', _messages);
+
 }
 
 
@@ -89,21 +100,20 @@ var MessageStore = merge(EventEmitter.prototype, {
 AppDispatcher.register(function(payload) {
   var source = payload.source,
       action = payload.action,
-      message = action.data;
+      message = payload.data;
 
-  switch(action.actionType) {
+  switch(action) {
     case 'MESSAGE_CREATE':
-      create(message);
+      update(message);
       break;
 
     case 'MESSAGE_UPDATE':
-      update(message.serverDate, message);
+      update(message);
       break;
 
     default:
       return true; // resolve promise
   }
-  console.log('messagestore event', action.actionType, message);
 
   MessageStore.emitChange(); // also, something changed
   return true; // resolve promise

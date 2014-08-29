@@ -68,12 +68,21 @@ Connection: (primus)
   CONN_RECONNECT "attempting reconnect"
   CONN_ONLINE
   CONN_OFFLINE
-  CONN_OPEN "cnn established"
+  CONN_OPEN "CONN established"
   CONN_ERROR message
   CONN_DATA "ondata"
   CONN_END "graceful"
   CONN_CLOSE "lost"
 
+
+### Action struct
+Passed around internally or cross-
+
+{
+  source: (optional) `SERVER_ACTION`, `VIEW_ACTION`
+  action: message, join, leave, ...
+  data: { data }
+}
 
 ### Message struct:
 
@@ -90,6 +99,14 @@ Connection: (primus)
 
 Messages are sent to the server with a .clientDate. The server will always
 reply with a .serverDate parameter
+
+
+### TODO user struct
+
+{
+  source: spark id
+  name: display name
+}
 
 ## TODOs
 
