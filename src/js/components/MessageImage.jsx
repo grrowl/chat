@@ -26,7 +26,16 @@ var MessageImage = React.createClass({
   _whammy: undefined,
 
   propTypes: {
-    onSave: React.PropTypes.func
+    onSave: React.PropTypes.func,
+    width: React.PropTypes.number,
+    height: React.PropTypes.number
+  },
+
+  getDefaultProps: function () {
+    return {
+      width: 200,
+      height: 100
+    }
   },
 
   getInitialState: function () {
@@ -42,7 +51,10 @@ var MessageImage = React.createClass({
     var webcam = this.refs.webcam,
         webcamElem = webcam.getDOMNode();
 
+    // Set up our off-DOM canvas renderer
     this._canvas = document.createElement('canvas');
+    this._canvas.width = this.props.width;
+    this._canvas.height = this.props.height;
     this._canvasContext = this._canvas.getContext('2d');
 
     getUserMedia.call(navigator, { video: true },
@@ -68,6 +80,10 @@ var MessageImage = React.createClass({
       throw new Error("MessageImage called to record during record");
     }
 
+    this.setState({
+      recording: true
+    });
+
     var videoElem = this.refs.webcam.getDOMNode();
 
     var maxFrames = this._fps * (this._duration / 1000),
@@ -79,7 +95,7 @@ var MessageImage = React.createClass({
       numFrames++;
 
       if (numFrames < maxFrames) {
-        this._canvasContext.drawImage(videoElem, 0, 0, videoElem.width, videoElem.height);
+        this._canvasContext.drawImage(videoElem, 0, 0, this.props.width, this.props.height);
         _whammy.add(this._canvasContext, frameDuration);
 
       } else {
@@ -88,57 +104,26 @@ var MessageImage = React.createClass({
         var output = _whammy.compile();
 
         console.log((window.webkitURL || window.URL).createObjectURL(output));
+
+        videoElem.src = (window.webkitURL || window.URL).createObjectURL(output);
       }
     }.bind(this), frameDuration);
   },
 
+  // upload image to the server
+  _upload: function (dataURI) {
+
+  },
+
   // if video.paused or video.ended -> handle error
-
-  /*
-  this.video = document.createElement('video');
-  $(videoContainer).append(this.video);
-
-  this.canvas = document.createElement('canvas');
-  $(this.canvas).attr({
-    width: this.captureSize.w,
-    height: this.captureSize.h
-  });
-  this.canvasContext = this.canvas.getContext('2d');
-
-  // kick it off
-  this.getStream(function (stream) {
-    self.video.src = window.URL.createObjectURL(stream);
-    self.video.play(); // apparently important
-    self.stream = stream;
-  },
-
-  getStream: function (successCallback, failCallback) {
-    return (
-      navigator.getUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.webkitGetUserMedia ||
-      function () {
-        console.error('getUserMedia not supported');
-      }
-    ).call(navigator, { video: true }, successCallback, failCallback);
-  },
-
-  */
-
-  // Save image
-  _save: function () {
-    this.props.onSave(this.state.value);
-
-    // Reset state
-    this.setState({
-      value: this.props.value || ''
-    });
-  },
 
   render: function () {
     return (
       <div className="webcam-image">
-        <video ref="webcam" />
+        <video
+          ref="webcam"
+          width={this.props.width}
+          height={this.props.height} />
       </div>
     );
   }

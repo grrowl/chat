@@ -28,7 +28,7 @@ var MessageInput = React.createClass({
   _createMessage: function(text) {
     var message = {
       clientDate: performance.now(),
-      room: this.props.room,
+      room: this.props.room.isRequired,
       text: text
     };
 
@@ -104,7 +104,7 @@ var MessageInput = React.createClass({
         </div>
         <input
           type="text" className="form-control"
-          placeholder={"Say something to room " + this.props.room}
+          placeholder={"Say something to room "+ this.props.room}
           onChange={this._onChange}
           onKeyDown={this._onKeyDown}
           value={this.state.value}
