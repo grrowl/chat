@@ -8,118 +8,9 @@ var addons = require('react/addons').addons;
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var MessageStore = require('../stores/MessageStore');
 
-// Message Views
+var MessageImage = require('./MessageImage.jsx');
 
-var MessageList = React.createClass({
-  propTypes: {
-    room: React.PropTypes.string.isRequired,
-  },
-
-  _roomFilter: function (message) {
-    return !!(message.room === this.props.room);
-  },
-
-  getInitialState: function() {
-    return {
-      messages: MessageStore.getFiltered(this._roomFilter)
-    };
-  },
-
-  // Set up
-  componentDidMount: function () {
-    MessageStore.addChangeListener(this._onChange);
-  },
-
-  // Tear down
-  componentDidUnmount: function () {
-    MessageStore.removeChangeListener(this._onChange);
-  },
-
-  // handler for when one of our stores changes
-  _onChange: function () {
-    this.setState({
-      messages: MessageStore.getFiltered(this._roomFilter)
-    });
-  },
-
-  render: function() {
-    var messages = [],
-        filterRooms = ['system', this.props.room ];
-
-    this.state.messages.forEach(function (message) {
-      if (filterRooms.indexOf(message.room) == -1) {
-        return;
-      }
-      messages.push(MessageItem( message ));
-    });
-
-    return (
-      <div>
-        <ul id="log">
-          {messages}
-        </ul>
-        <MessageInput
-          placeholder={"Say something to room "+ this.props.room}
-          onSave={this._createMessage} />
-        <MessageImage
-          onSave={this._createMessage} />
-      </div>
-    );
-  },
-
-  _createMessage: function(text) {
-    var message = {
-      clientDate: performance.now(),
-      room: this.props.room,
-      text: text
-    };
-
-    AppDispatcher.dispatchViewAction(
-      'MESSAGE_CREATE',
-      message
-    );
-  }
-});
-
-var MessageItem = React.createClass({
-  toggleLike: function() {
-    console.log('toggleLike', arguments);
-    alert('great work!');
-  },
-
-  getName: function() {
-    if (!this.props.source)
-      return 'unknown';
-    else if (this.props.source.length == 20)
-      return this._randomName(this.props.source);
-    else
-      return this.props.source;
-  },
-
-  render: function () {
-    // once we implement formatting:
-    // <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
-    var name = 'unknown';
-    if (this.props && this.props.name)
-      name = this.props.name;
-
-    return (
-      <li className={React.addons.classSet({
-        // completed: 'type-'+ this.props.action,
-        verified: ~~this.props.date
-      })}>
-        <h4>
-          { this.getName(name) }
-        </h4>
-        <div className="message" onDoubleClick={ this.toggleLike }>
-          { this.props.text }<br />
-          { this.props.clientDate } / { this.props.serverDate }
-        </div>
-      </li>
-    );
-  }
-});
-
+// Message Input
 
 var MessageInput = React.createClass({
 
@@ -196,6 +87,9 @@ var MessageInput = React.createClass({
   render: function () {
     return (
       <div className="input-group input-group-lg">
+        <div className="input-group-addon">
+          <MessageImage />
+        </div>
         <input
           type="text" className="form-control"
           placeholder={this.props.placeholder}
@@ -212,44 +106,4 @@ var MessageInput = React.createClass({
   }
 });
 
-var MessageImage = React.createClass({
-
-  propTypes: {},
-
-  getInitialState: function () {
-    return {}
-  },
-
-  _save: function () {
-    this.props.onSave(this.state.value);
-
-    // Reset state
-    this.setState({
-      value: this.props.value || ''
-    });
-  },
-
-  _onClick: function () {
-    this._save();
-  },
-
-  _onChange: function(event) {
-    this.setState({
-      value: event.target.value
-    });
-  },
-
-  render: function () {
-    return (
-      <div className="well">
-        image
-      </div>
-    );
-  }
-});
-
-
-module.exports = {
-  MessageList: MessageList,
-  MessageItem: MessageItem
-};
+module.exports = MessageInput;
