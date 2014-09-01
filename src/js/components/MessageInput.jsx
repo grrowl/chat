@@ -15,8 +15,7 @@ var MessageImage = require('./MessageImage.jsx');
 var MessageInput = React.createClass({
 
   propTypes: {
-    onSave: React.PropTypes.func.isRequired,
-    placeholder: React.PropTypes.string,
+    room: React.PropTypes.string.isRequired,
     value: React.PropTypes.string
   },
 
@@ -26,8 +25,21 @@ var MessageInput = React.createClass({
     }
   },
 
-  _save: function () {
-    this.props.onSave(this.state.value);
+  _createMessage: function(text) {
+    var message = {
+      clientDate: performance.now(),
+      room: this.props.room,
+      text: text
+    };
+
+    // Notify MessageImage
+    console.log(this.refs.image);
+    this.refs.image.onCreateMessage(message);
+
+    AppDispatcher.dispatchViewAction(
+      'MESSAGE_CREATE',
+      message
+    );
 
     // Reset state
     this.setState({
@@ -36,7 +48,7 @@ var MessageInput = React.createClass({
   },
 
   _onClick: function () {
-    this._save();
+    this._createMessage();
   },
 
   _onChange: function(event) {
@@ -48,7 +60,7 @@ var MessageInput = React.createClass({
   _onKeyDown: function (event) {
     // KEY_ENTER == 13
     if (event.keyCode == 13)
-      this._save();
+      this._createMessage();
   },
 
   // well this is slightly convoluted, but it should work nicely enough
@@ -88,11 +100,11 @@ var MessageInput = React.createClass({
     return (
       <div className="input-group input-group-lg">
         <div className="input-group-addon">
-          <MessageImage />
+          <MessageImage ref="image" />
         </div>
         <input
           type="text" className="form-control"
-          placeholder={this.props.placeholder}
+          placeholder={"Say something to room " + this.props.room}
           onChange={this._onChange}
           onKeyDown={this._onKeyDown}
           value={this.state.value}

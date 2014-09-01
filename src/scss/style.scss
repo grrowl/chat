@@ -49,8 +49,6 @@ h1 {
   }
 }
 
-.webcam-image {
-  // display: inline-block;
-  // width: 300px;
-  // height: 250px;
+.webcam-image video {
+  max-width: 200px;
 }

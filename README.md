@@ -4,7 +4,7 @@ Based on works:
 * https://github.com/primus/primus#connecting-from-the-browser
 * https://github.com/cayasso/primus-rooms
 * ~https://github.com/zeMirco/primus-express-session~
-* https://github.com/hdragomir/facetogif (MIT Licence)
+* ~https://github.com/hdragomir/facetogif~ (MIT Licence)
 
 ## Server Side
 All the server has to do is serve static files, and allow users to: a) subscribe to one or more channels (lobby, someroom, user-to-user), and b) accept messages to rebroadcast to everyone on those channels.

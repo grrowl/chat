@@ -62,22 +62,9 @@ var MessageList = React.createClass({
           {messages}
         </ul>
         <MessageInput
-          placeholder={"Say something to room "+ this.props.room}
+          room="{this.props.room}"
           onSave={this._createMessage} />
       </div>
-    );
-  },
-
-  _createMessage: function(text) {
-    var message = {
-      clientDate: performance.now(),
-      room: this.props.room,
-      text: text
-    };
-
-    AppDispatcher.dispatchViewAction(
-      'MESSAGE_CREATE',
-      message
     );
   }
 });
