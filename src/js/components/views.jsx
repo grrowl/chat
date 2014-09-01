@@ -61,6 +61,8 @@ var MessageList = React.createClass({
         <MessageInput
           placeholder={"Say something to room "+ this.props.room}
           onSave={this._createMessage} />
+        <MessageImage
+          onSave={this._createMessage} />
       </div>
     );
   },
@@ -212,16 +214,10 @@ var MessageInput = React.createClass({
 
 var MessageImage = React.createClass({
 
-  propTypes: {
-    onSave: React.PropTypes.func.isRequired,
-    placeholder: React.PropTypes.string,
-    value: React.PropTypes.string
-  },
+  propTypes: {},
 
   getInitialState: function () {
-    return {
-      value: this.props.value || ''
-    }
+    return {}
   },
 
   _save: function () {
@@ -243,26 +239,10 @@ var MessageImage = React.createClass({
     });
   },
 
-  _onKeyDown: function (event) {
-    // KEY_ENTER == 13
-    if (event.keyCode == 13)
-      this._save();
-  },
-
   render: function () {
     return (
-      <div className="input-group input-group-lg">
-        <input
-          type="text" className="form-control"
-          placeholder={this.props.placeholder}
-          onChange={this._onChange}
-          onKeyDown={this._onKeyDown}
-          value={this.state.value}
-         />
-        <span className="input-group-btn">
-          <button id="btn-post" className="btn btn-primary"
-          onClick={this._onClick}>Post</button>
-        </span>
+      <div className="well">
+        image
       </div>
     );
   }
