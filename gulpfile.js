@@ -103,39 +103,11 @@ gulp.task('build', ['clean'], function (cb) {
 // Launch a lightweight HTTP Server
 // -----------------------------------------------------------------------------
 gulp.task('serve', ['build'], function (next) {
-    var url = require('url');
-    var server = require('http').createServer();
-    var staticHandler = require('ecstatic')({
-        root: './', cache: 'no-cache', showDir: true
-    });
-    var port = 3000;
-
-    // Handle static file requests with ecstatic
-    server.
-        on('request', function (req, res) {
-            // For non-existent files output the contents of /index.html page in order to make HTML5 routing work
-            var urlPath = url.parse(req.url).pathname;
-            if (urlPath === '/') {
-                req.url = DEST.substring(1) + '/index.html';
-            } else if (['src', 'bower_components'].indexOf(urlPath.split('/')[1]) === -1) {
-                if (urlPath.length > 3 &&
-                    ['src', 'bower_components'].indexOf(urlPath.split('/')[1]) === -1 &&
-                    ['css', 'html', 'ico', 'js', 'png', 'txt', 'xml'].indexOf(urlPath.split('.').pop()) == -1 &&
-                    ['fonts', 'images', 'vendor', 'views'].indexOf(urlPath.split('/')[1]) == -1) {
-                    req.url = DEST.substring(1) + '/index.html';
-                } else {
-                    req.url = DEST.substring(1) + req.url;
-                }
-            }
-            staticHandler(req, res);
-        }).
-        listen(port, function () {
-            $.util.log('Server is listening on ' + $.util.colors.magenta('http://localhost:' + port + '/'));
-            next();
-        });
-
     // Attach chat server
-    require('./ChatServer')(server);
+    require('./ChatServer')({
+        assetRoot: DEST,
+        afterStart: next
+    });
 });
 
 // Watch for changes in source files
