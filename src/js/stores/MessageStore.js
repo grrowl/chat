@@ -105,7 +105,7 @@ AppDispatcher.register(function(payload) {
       update(message);
       break;
 
-    case 'MESSAGE_UPDATE':
+    case 'MESSAGE_RECEIVE':
       update(message);
       break;
 

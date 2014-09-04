@@ -61,7 +61,7 @@ and payload keys
 
 Messages:
   MESSAGE_CREATE: id, message
-  MESSAGE_UPDATE: id, message
+  MESSAGE_RECEIVE: id, message
 
 Connection: (primus)
   CONN_RECONNECTING "in a reconnecting state": attempt, timeout
@@ -123,7 +123,6 @@ reply with a .serverDate parameter
 [ ] Massage ChatServer to rely on ecstatic's default functionality, clean up all that fuckin else/if nonsense
 [ ] Webcam file uploading
   [ ] [Lazy gzipping?](https://github.com/jesusabdullah/node-ecstatic#optsgzip) - since there will be *n* requests within 5 seconds, maybe we only run a gzip step when a certain threshold of users will probably load it (still slow for client)
-[ ] rename/refactor MESSAGE_UPDATE to `MESSAGE_RECEIVED`
 
 ### Webcam capture
 

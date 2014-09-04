@@ -21,8 +21,8 @@ var getUserMedia = (
 var _whammy;
 
 var MessageImage = React.createClass({
-  _fps: 15, // frames per second
-  _duration: 1000, // total duration
+  _fps: 10, // frames per second
+  _duration: 2000, // total duration
 
   _canvas: undefined,
 
@@ -77,7 +77,7 @@ var MessageImage = React.createClass({
   },
 
   // Notification from "upstairs" about a message being saved
-  onCreateMessage: function () {
+  onCreateMessage: function (message) {
     if (!this.state.camming) {
       // todo: pause current webcam save, fork upload process, restart recording
       console.warn('No webcam access.');
@@ -118,7 +118,7 @@ var MessageImage = React.createClass({
           recording: false
         });
 
-        this._upload(output);
+        this._upload(output, message);
 
         // videoElem.src = (window.webkitURL || window.URL).createObjectURL(output);
       }
@@ -126,23 +126,25 @@ var MessageImage = React.createClass({
   },
 
   // upload image to the server
-  _upload: function (fileURL) {
+  _upload: function (fileBlob, message) {
     this.setState({
       sending: true
     });
 
-    console.log('sending', fileURL);
+    console.log('sending', fileBlob);
 
     var formData = new FormData();
-    formData.append('video', fileURL);
+    formData.append('video', fileBlob);
+    formData.append('clientDate', message.clientDate);
 
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {
       this.setState({
         sending: false
       });
-      console.log('send complete', fileURL);
+      console.log('sent!', fileBlob);
     }.bind(this);
+
     xhr.open("post", "/upload", true);
     xhr.send(formData);
   },

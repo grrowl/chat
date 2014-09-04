@@ -19,7 +19,7 @@ var MessageList = React.createClass({
   },
 
   _roomFilter: function (message) {
-    return !!(message.room === this.props.room);
+    return !!(['system', this.props.room ].indexOf(message.room) !== -1);
   },
 
   getInitialState: function() {
@@ -46,13 +46,9 @@ var MessageList = React.createClass({
   },
 
   render: function() {
-    var messages = [],
-        filterRooms = ['system', this.props.room ];
+    var messages = [];
 
     this.state.messages.forEach(function (message) {
-      if (filterRooms.indexOf(message.room) == -1) {
-        return;
-      }
       messages.push(MessageItem( message ));
     });
 

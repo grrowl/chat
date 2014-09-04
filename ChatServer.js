@@ -15,7 +15,7 @@ var merge = require('react/lib/merge');
 var _port = 3000;
 
 var _assetRoot;
-var _primus, _server;
+var _primus, _server, _ffmpeg;
 
 function bindStatic(server) {
   var staticHandler = require('ecstatic')({
@@ -27,6 +27,9 @@ function bindStatic(server) {
 
     if (urlPath === '/upload') {
       return; // let bindUploads take it
+
+    } else if (urlPath.indexOf('/videos') === 0) {
+      // req.url = '/index.html'; // let it be
 
     } else if (urlPath === '/') {
       req.url = _assetRoot.substring(1) + '/index.html';
@@ -53,6 +56,8 @@ function bindStatic(server) {
 }
 
 function bindUploads(server) {
+  _ffmpeg = require('fluent-ffmpeg');
+
   server.on('request', function (req, res) {
     if (url.parse(req.url).pathname !== '/upload' || req.method.toLowerCase() !== 'post')
       return;
@@ -60,24 +65,51 @@ function bindUploads(server) {
     var form = new formidable.IncomingForm();
     form.encoding = 'binary';
 
+    /*
     form.on('file', function (name, file) {
-      $.util.log('[uploads] onfile: ' + $.util.colors.magenta(name));
       $.util.log('[uploads] onfile: ' + $.util.colors.magenta(JSON.stringify(file)));
     });
+    */
 
     form.parse(req, function(err, fields, files) {
-      emitSystemMessage('an upload happened');
+      var outputFile = 'videos/'+ now() + '.webm';
+
+      // emitSystemMessage('an upload happened');
+
+      // clientDate = fields.clientDate;
 
       if (err)
         $.util.log('[uploads] error: ' + $.util.colors.red(JSON.stringify(err)));
       $.util.log('[uploads] happened: ' + $.util.colors.magenta(JSON.stringify(fields)));
+      $.util.log('                    ' + $.util.colors.magenta(JSON.stringify(files)));
+
+      // ffmpeg time.
+      _ffmpeg(files.video.path)
+        .videoCodec('libvpx')
+        .videoBitrate(512)
+        .outputOptions('-crf', '20')
+        .noAudio()
+        .output('./'+ outputFile)
+        .on('start', function (commandLine) {
+          $.util.log('[ffmpeg] start: ' + $.util.colors.magenta(commandLine));
+        })
+        .on('progress', function (progress) {
+          $.util.log('[ffmpeg] progress: '+ progress +'%');
+        })
+        .on('error', function (err, stdout, stderr) {
+          $.util.log('[ffmpeg] '+ $.util.colors.red('error: '+ err));
+        })
+        .on('end', function (progress) {
+          $.util.log('[ffmpeg] '+ $.util.colors.green('done'));
+          emitSystemMessage('video saved: '+ outputFile);
+        })
+        .run();
 
       res.writeHead(200, {'content-type': 'text/plain'});
-      res.write('received upload:\n\n');
+      res.write('Thank you, client.\n\n');
       res.end();
       // res.end($.util.inspect({fields: fields, files: files}));
     });
-
 
     // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg
   });
