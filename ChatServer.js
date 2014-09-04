@@ -4,6 +4,7 @@
 
 var url = require('url');
 var http = require('http');
+var formidable = require('formidable');
 var $ = require('gulp-load-plugins')();
 
 var Primus = require('primus');
@@ -22,10 +23,20 @@ function bindStatic(server) {
   });
 
   _server.on('request', function (req, res) {
-    // For non-existent files output the contents of /index.html page in order to make HTML5 routing work
     var urlPath = url.parse(req.url).pathname;
-    if (urlPath === '/') {
+
+    if (urlPath === '/upload') {
+      return; // let bindUploads take it
+
+    } else if (urlPath === '/') {
       req.url = _assetRoot.substring(1) + '/index.html';
+
+    } else {
+      req.url = _assetRoot.substring(1) + req.url;
+    }
+/*
+    // For non-existent files output the contents of /index.html page in order to make HTML5 routing work
+    // disabled for now, we should whitelist html5 routes instead of the below mess
     } else if (['src', 'bower_components'].indexOf(urlPath.split('/')[1]) === -1) {
       if (urlPath.length > 3 &&
         ['src', 'bower_components'].indexOf(urlPath.split('/')[1]) === -1 &&
@@ -36,22 +47,54 @@ function bindStatic(server) {
         req.url = _assetRoot.substring(1) + req.url;
       }
     }
+*/
     staticHandler(req, res);
+  });
+}
+
+function bindUploads(server) {
+  server.on('request', function (req, res) {
+    if (url.parse(req.url).pathname !== '/upload' || req.method.toLowerCase() !== 'post')
+      return;
+
+    var form = new formidable.IncomingForm();
+    form.encoding = 'binary';
+
+    form.on('file', function (name, file) {
+      $.util.log('[uploads] onfile: ' + $.util.colors.magenta(name));
+      $.util.log('[uploads] onfile: ' + $.util.colors.magenta(JSON.stringify(file)));
+    });
+
+    form.parse(req, function(err, fields, files) {
+      emitSystemMessage('an upload happened');
+
+      if (err)
+        $.util.log('[uploads] error: ' + $.util.colors.red(JSON.stringify(err)));
+      $.util.log('[uploads] happened: ' + $.util.colors.magenta(JSON.stringify(fields)));
+
+      res.writeHead(200, {'content-type': 'text/plain'});
+      res.write('received upload:\n\n');
+      res.end();
+      // res.end($.util.inspect({fields: fields, files: files}));
+    });
+
+
+    // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg
   });
 }
 
 function bindChat(server) {
 
   // Hook into server
-  var primus = require('primus')(server, {
-      transformer: 'engine.io'
+  _primus = require('primus')(server, {
+    transformer: 'engine.io'
   });
 
   // add rooms to Primus
-  primus.use('rooms', Rooms);
+  _primus.use('rooms', Rooms);
 
   // Handle new connection and new data
-  primus.on('connection', function (spark) {
+  _primus.on('connection', function (spark) {
     $.util.log('[chat] connection: ' + $.util.colors.magenta(spark.id));
 
     spark.on('data', function(data) {
@@ -64,6 +107,8 @@ function onChatCommand(spark, data) {
   var action = data.action,
       message = data.data,
       room = message.room;
+
+  $.util.log('[chat] '+ $.util.colors.magenta(action) +' from ' + $.util.colors.green(spark.id));
 
   switch (action) {
     case 'join':
@@ -123,6 +168,19 @@ function onChatCommand(spark, data) {
   }
 }
 
+// Notify everyone of a system message
+function emitSystemMessage(message) {
+  _primus.write({
+    action: 'message',
+    data: {
+      serverDate: now(),
+      source: 'system',
+      room: 'system',
+      text: message,
+    }
+  });
+}
+
 module.exports = function (opts) {
   var nextCallback = opts.afterStart || function () {};
 
@@ -132,6 +190,9 @@ module.exports = function (opts) {
 
   // Bind static asset server
   bindStatic(_server);
+
+  // Bind upload handler
+  bindUploads(_server);
 
   // Bind chat server
   bindChat(_server);

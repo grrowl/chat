@@ -62,7 +62,7 @@ var MessageList = React.createClass({
           {messages}
         </ul>
         <MessageInput
-          room="{this.props.room}"
+          room={this.props.room}
           onSave={this._createMessage} />
       </div>
     );

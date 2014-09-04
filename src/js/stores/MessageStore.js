@@ -47,8 +47,6 @@ function update(updates) {
     _messages[id] = merge(_messages[id], updates);
   }
 
-  console.log('updated store', _messages);
-
 }
 
 
