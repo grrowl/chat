@@ -114,11 +114,13 @@ var ChatClient = {
     primus.on('data', function incoming(data) {
       switch (data.action) {
         case 'message':
-          AppDispatcher.dispatchServerAction('MESSAGE_UPDATE', data.data);
+          AppDispatcher.dispatchServerAction('MESSAGE_RECEIVE', data.data);
           break;
 
         case 'join':
         case 'leave':
+
+        default:
           console.warn('unkonwn server message recv', data);
 
       }

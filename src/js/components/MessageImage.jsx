@@ -18,12 +18,13 @@ var getUserMedia = (
   }
 );
 
+var _whammy;
+
 var MessageImage = React.createClass({
-  _fps: 15, // frames per second
-  _duration: 1000, // total duration
+  _fps: 10, // frames per second
+  _duration: 2000, // total duration
 
   _canvas: undefined,
-  _whammy: undefined,
 
   propTypes: {
     onSave: React.PropTypes.func,
@@ -59,21 +60,30 @@ var MessageImage = React.createClass({
 
     getUserMedia.call(navigator, { video: true },
       function success(stream) {
-        console.log('success!', webcam, webcamElem);
+        console.log('webcam connected!');
+
+        this.setState({
+          camming: true
+        });
 
         webcamElem.src = window.URL.createObjectURL(stream);
         webcamElem.play(); // apparently important
-        self.stream = stream;
 
         _whammy = new Whammy.Video();
-      },
+      }.bind(this),
       function fail() {
         console.warn('webcam fail');
       });
   },
 
   // Notification from "upstairs" about a message being saved
-  onCreateMessage: function () {
+  onCreateMessage: function (message) {
+    if (!this.state.camming) {
+      // todo: pause current webcam save, fork upload process, restart recording
+      console.warn('No webcam access.');
+      return false;
+    }
+
     if (this.state.recording) {
       // todo: pause current webcam save, fork upload process, restart recording
       console.warn('MessageImage record-during-record.');
@@ -100,19 +110,43 @@ var MessageImage = React.createClass({
 
       } else {
         clearInterval(recordInterval);
-        console.log('recording done');
-        var output = _whammy.compile();
+        var output = _whammy.compile(),
+            outputURL = (window.webkitURL || window.URL).createObjectURL(output);
+        console.log('recording done', output);
 
-        console.log((window.webkitURL || window.URL).createObjectURL(output));
+        this.setState({
+          recording: false
+        });
 
-        videoElem.src = (window.webkitURL || window.URL).createObjectURL(output);
+        this._upload(output, message);
+
+        // videoElem.src = (window.webkitURL || window.URL).createObjectURL(output);
       }
     }.bind(this), frameDuration);
   },
 
   // upload image to the server
-  _upload: function (dataURI) {
+  _upload: function (fileBlob, message) {
+    this.setState({
+      sending: true
+    });
 
+    console.log('sending', fileBlob);
+
+    var formData = new FormData();
+    formData.append('video', fileBlob);
+    formData.append('clientDate', message.clientDate);
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      this.setState({
+        sending: false
+      });
+      console.log('sent!', fileBlob);
+    }.bind(this);
+
+    xhr.open("post", "/upload", true);
+    xhr.send(formData);
   },
 
   // if video.paused or video.ended -> handle error

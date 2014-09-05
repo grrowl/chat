@@ -47,8 +47,6 @@ function update(updates) {
     _messages[id] = merge(_messages[id], updates);
   }
 
-  console.log('updated store', _messages);
-
 }
 
 
@@ -107,7 +105,7 @@ AppDispatcher.register(function(payload) {
       update(message);
       break;
 
-    case 'MESSAGE_UPDATE':
+    case 'MESSAGE_RECEIVE':
       update(message);
       break;
 
