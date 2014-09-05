@@ -124,7 +124,8 @@ reply with a .serverDate parameter
 * [ ] Webcam file uploading
   [ ] [Lazy gzipping?](https://github.com/jesusabdullah/node-ecstatic#optsgzip) - since there will be *n* requests within 5 seconds, maybe we only run a gzip step when a certain threshold of users will probably load it (still slow for client)
   [ ] [ecstatic, offer to code different cache times for different urls](https://github.com/jesusabdullah/node-ecstatic/issues/94)
-* [ ] rename/refactor MESSAGE_UPDATE to `MESSAGE_RECEIVED`
+* [x] rename/refactor MESSAGE_UPDATE to `MESSAGE_RECEIVED`
+* [ ] Refactor `clientDate` to `localId`. how do we reference `localId -> message.serverDate -> message.videoSrc`? maybe it's time to start mongo.
 
 ### Static server options
 

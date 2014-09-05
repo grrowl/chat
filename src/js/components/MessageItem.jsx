@@ -28,9 +28,6 @@ var MessageItem = React.createClass({
   render: function () {
     // once we implement formatting:
     // <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
-    var name = 'unknown';
-    if (this.props && this.props.name)
-      name = this.props.name;
 
     return (
       <li className={React.addons.classSet({
@@ -38,7 +35,7 @@ var MessageItem = React.createClass({
         verified: !!this.props.serverDate
       })} onDoubleClick={ this.toggleLike }>
         <h4>
-          { this.getName(name) }
+          { this.getName() }
         </h4>
         <div className="message">
           { this.props.text }<br />
