@@ -19,7 +19,7 @@
     "whammy": "^0.0.1",
 
     "ecstatic": "^0.5.4",
-    "event-stream": "^3.1.7",
+    "event-stream": "=3.3.4",
     "gulp": "^3.8.7",
     "gulp-changed": "^0.4.1",
     "gulp-embedlr": "^0.5.2",
